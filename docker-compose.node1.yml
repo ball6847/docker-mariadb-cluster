@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  node1:
+    build: ./
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_REPLICATION_PASSWORD=123456
+      - MYSQL_CLUSTER_ADDRESS=
+
