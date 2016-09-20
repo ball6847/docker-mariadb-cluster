@@ -27,13 +27,6 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" -a "$(id -u)" = '0' ]; then
     mkdir -p "$DATADIR"
     chown -R mysql:mysql "$DATADIR"
 
-    echo "
-# galera configuration dynamically generated upon startup
-[galera]
-wsrep_cluster_address = gcomm://${MYSQL_CLUSTER_ADDRESS}
-wsrep_sst_auth = replication:${MYSQL_REPLICATION_PASSWORD}
-" > /etc/mysql/conf.d/99-container.cnf
-
     exec gosu mysql "$BASH_SOURCE" "$@"
 fi
 
@@ -143,10 +136,22 @@ EOSQL
     fi
 fi
 
+# scan available nodes to get one to join
+IFS=',';
+for node in $MYSQL_CLUSTER_ADDRESS; do
+    if nc -z $node 3306; then
+        MYSQL_CLUSTER_ADDRESS=$node
+        break
+    else
+        MYSQL_CLUSTER_ADDRESS=
+    fi
+done
+
+
 if [ "$MYSQL_CLUSTER_ADDRESS" == "" ]; then
     set -- "$@" --wsrep-new-cluster
 fi
 
-set -- "$@" --wsrep_on=ON
+set -- "$@" --wsrep_on=ON --wsrep_cluster_address=gcomm://$MYSQL_CLUSTER_ADDRESS --wsrep_sst_auth=replication:$MYSQL_REPLICATION_PASSWORD
 
 exec "$@"
