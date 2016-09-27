@@ -1,5 +1,5 @@
 [galera]
-# wsrep_on = ON
+wsrep_on = ON
 wsrep_provider = /usr/lib/galera/libgalera_smm.so
 wsrep_sst_method = xtrabackup-v2
 binlog_format = row
