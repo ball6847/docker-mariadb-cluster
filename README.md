@@ -1,25 +1,43 @@
-## MariaDB 10.1 Galera Cluster using Docker
+MariaDB 10.1 Galera Cluster using Docker
+========================================
 
-1 build image
+Spins up a usable Galera Cluster easily...
 
+Consumption
+-----------
+Spin up using `docker-compose`:
 ```
-docker-compose -f docker-compose.node1.yml build
-```
-
-2 start node1 as primary node
-
-```
-docker-compose -f docker-compose.node1.yml up -d
+docker-compose up -d --build
 ```
 
-3 join node 2 to cluster
-
+Included `docker-compose.yml`:
 ```
-docker-compose -f docker-compose.node2.yml up -d
-```
-
-4 join node 3 to cluster
-
-```
-docker-compose -f docker-compose.node3.yml up -d
+version: '2'
+services:
+  node1:
+    build: "./"
+    image: "etsbv-mariadb"
+    environment:
+      - MYSQL_ROOT_PASSWORD=dbcluster
+      - MYSQL_REPLICATION_PASSWORD=dbcluster
+      - MYSQL_CLUSTER_ADDRESS=
+  node2:
+    image: "etsbv-mariadb"
+    depends_on:
+      - "node1"
+    environment:
+      - MYSQL_ROOT_PASSWORD=dbcluster
+      - MYSQL_REPLICATION_PASSWORD=dbcluster
+      - MYSQL_CLUSTER_ADDRESS=node2
+      - MYSQL_CLUSTER_PRIMARY_NODE=node1
+  node3:
+    image: "etsbv-mariadb"
+    depends_on:
+      - "node1"
+      - "node2"
+    environment:
+      - MYSQL_ROOT_PASSWORD=dbcluster
+      - MYSQL_REPLICATION_PASSWORD=dbcluster
+      - MYSQL_CLUSTER_ADDRESS=node3
+      - MYSQL_CLUSTER_PRIMARY_NODE=node1
 ```
