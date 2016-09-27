@@ -1,4 +1,4 @@
-FROM mariadb
+FROM mariadb:10
 MAINTAINER Porawit Poboonma <ball6847@gmail.com>
 
 ENV MYSQL_CLUSTER_ADDRESS="" \
