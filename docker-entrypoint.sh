@@ -138,20 +138,20 @@ fi
 
 # scan available nodes to get one to join
 IFS=',';
-for node in $MYSQL_CLUSTER_ADDRESS; do
-    if nc -z $node 3306; then
-        MYSQL_CLUSTER_ADDRESS=$node
-        break
-    else
-        MYSQL_CLUSTER_ADDRESS=
-    fi
-done
+# for node in $MYSQL_CLUSTER_ADDRESS; do
+#     if nc -z $node 3306; then
+#         MYSQL_CLUSTER_ADDRESS=$node
+#         break
+#     else
+#         MYSQL_CLUSTER_ADDRESS=
+#     fi
+# done
 
 
 if [ "$MYSQL_CLUSTER_ADDRESS" == "" ]; then
-    set -- "$@" --wsrep-new-cluster
+    set -- "$@" --wsrep-new-cluster --wsrep_cluster_address=gcomm:// --wsrep_sst_auth=replication:$MYSQL_REPLICATION_PASSWORD
+elif [ "$MYSQL_CLUSTER_ADDRESS" != "" ]; then
+    set -- "$@" --wsrep_on=ON --wsrep_cluster_address=gcomm://$MYSQL_CLUSTER_PRIMARY_NODE,$MYSQL_CLUSTER_ADDRESS --wsrep_sst_auth=replication:$MYSQL_REPLICATION_PASSWORD
 fi
-
-set -- "$@" --wsrep_on=ON --wsrep_cluster_address=gcomm://$MYSQL_CLUSTER_ADDRESS --wsrep_sst_auth=replication:$MYSQL_REPLICATION_PASSWORD
 
 exec "$@"
